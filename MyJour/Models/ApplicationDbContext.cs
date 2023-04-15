@@ -9,6 +9,7 @@ namespace MyJour.Models
         public DbSet<Student> Student { get; set; }
         public DbSet<Parent> Parent { get; set; }
         public DbSet<Teacher> Teacher { get; set; }
+        public DbSet<Role> Role { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             Database.EnsureCreated();

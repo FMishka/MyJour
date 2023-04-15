@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyJour.Models;
+using MyJour.Attribute;
 
 namespace MyJour.Controllers
 {
@@ -11,7 +13,7 @@ namespace MyJour.Controllers
         {
             db = context;
         }
-
+        [RoleAuthorization("Teacher")]
         public IActionResult Register()
         {
             return View();
@@ -41,20 +43,33 @@ namespace MyJour.Controllers
         public IActionResult Login(User user)
         {
             var authenticatedUser = db.Teacher.Select(u => new {u.Login, u.Password}).FirstOrDefault(u => u.Login == user.Login && u.Password == user.Password);
-
+            //Скорее всего можнно упрознить User и просто выдавать роль только через Role
             if (authenticatedUser != null)
             {
+                var role = db.Teacher.Where(u => u.Login == user.Login).Select(u => u.Role.Name);
                 HttpContext.Session.SetString("Login", authenticatedUser.Login);
+                HttpContext.Session.SetString("User", "Teacher");
+                foreach (var item in role)
+                {
+                    HttpContext.Session.SetString("Role", item); // потомпоменять
+                }
+                
+
                 return RedirectToAction("Index", "Home");
             }
             else if ((authenticatedUser = db.Parent.Select(u => new { u.Login, u.Password }).FirstOrDefault(u => u.Login == user.Login && u.Password == user.Password)) != null)
             {
                 HttpContext.Session.SetString("Login", authenticatedUser.Login);
+                HttpContext.Session.SetString("User", "Parent");
+                HttpContext.Session.SetString("Role", "User");
                 return RedirectToAction("Index", "Home");
             }
             else if ((authenticatedUser = db.Student.Select(u => new { u.Login, u.Password }).FirstOrDefault(u => u.Login == user.Login && u.Password == user.Password)) != null)
             {
                 HttpContext.Session.SetString("Login", authenticatedUser.Login);
+                HttpContext.Session.SetString("User", "Student");
+                HttpContext.Session.SetString("Role", "User");
+
                 return RedirectToAction("Index", "Home");
             }
 

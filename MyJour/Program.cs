@@ -12,6 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(3600);
+    options.Cookie.HttpOnly= true;
+});
+
 builder.Services.AddSwaggerGen();
 
 var connectionStringUsers = builder.Configuration.GetConnectionString("MyDb");
@@ -43,7 +49,7 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthentication();
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.UseSwagger();
 app.UseSwaggerUI();

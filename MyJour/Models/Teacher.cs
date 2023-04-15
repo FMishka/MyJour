@@ -7,5 +7,6 @@
         public int Age { get; set; }
         public int ClassId { get; set; }
         public int RoleId { get; set; }
+        public Role Role { get; set; }
     }
 }
