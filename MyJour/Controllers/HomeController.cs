@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyJour.Attribute;
 using MyJour.Models;
 using System.Diagnostics;
 
@@ -17,7 +18,6 @@ namespace MyJour.Controllers
         {
             return View();
         }
-
         public IActionResult Privacy()
         {
             return View();

@@ -6,24 +6,24 @@ namespace MyJour.Attribute
 {
     public class RoleAuthorizationAttribute : ActionFilterAttribute
     {
-        private readonly string _role;
+        private readonly string _roles;
 
-        public RoleAuthorizationAttribute(string role)
+        public RoleAuthorizationAttribute(params string[] roles)
         {
-            _role = role;
+            _roles = String.Join(",", roles);
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            // Проверяем наличие роли или других критериев авторизации
-            string userRole = context.HttpContext.Session.GetString("User"); // Получаем значение из сессии
-            if (userRole != _role)
+            string userRole = context.HttpContext.Session.GetString("Role");
+            if (_roles.Contains(userRole))
             {
-                // Если роль не соответствует ожидаемой роли, перенаправляем на начальную страницу
+                base.OnActionExecuting(context);
+            }
+            else
+            {
                 context.Result = new RedirectToActionResult("Index", "Home", null);
             }
-
-            base.OnActionExecuting(context);
         }
     }
 }
