@@ -8,5 +8,8 @@
         public int ClassId { get; set; }
         public int RoleId { get; set; }
         public Role Role { get; set; }
+        public Class Class { get; set; }
+        public ICollection<Subject> Subject { get; set; }
+
     }
 }

@@ -1,0 +1,14 @@
+﻿@model ICollection<AcademicPerformance>
+
+<table>
+    <tr>
+        @{
+            //По дням отображать, а выбирают месяц и год
+            var list = AcademicPerformance.GetAllDatesAndInitializeTickets(new DateTime(2022, 1, 1), new DateTime(2022, 1, 31));
+            foreach (var item in list)
+            {
+                <td>@item.ToString("dd/MM/yyyy")</td>
+            }
+        }
+    </tr>
+</table>

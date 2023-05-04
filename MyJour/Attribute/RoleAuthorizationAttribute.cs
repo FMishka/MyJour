@@ -16,9 +16,16 @@ namespace MyJour.Attribute
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             string userRole = context.HttpContext.Session.GetString("Role");
-            if (_roles.Contains(userRole))
+            if (userRole != null)
             {
-                base.OnActionExecuting(context);
+                if (_roles == "All" || _roles.Contains(userRole)) // Разрешение всем авторизированным пользователям, либо определённым ролям
+                {
+                    base.OnActionExecuting(context);
+                }
+                else
+                {
+                    context.Result = new RedirectToActionResult("Index", "Home", null);
+                }
             }
             else
             {

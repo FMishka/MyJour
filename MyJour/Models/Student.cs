@@ -7,5 +7,7 @@
         public int Age { get; set; }
         public int ClassId { get; set; }
         //int HealthId { get; set; }  Пока нет, скоро поменяется
+        public Class Class { get; set; }
+        public ICollection<AcademicPerformance> AcademicPerformance { get; set; }
     }
 }
