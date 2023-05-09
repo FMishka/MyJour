@@ -1,14 +1,70 @@
 ﻿@model ICollection<AcademicPerformance>
-
-<table>
-    <tr>
-        @{
-            //По дням отображать, а выбирают месяц и год
-            var list = AcademicPerformance.GetAllDatesAndInitializeTickets(new DateTime(2022, 1, 1), new DateTime(2022, 1, 31));
-            foreach (var item in list)
-            {
-                <td>@item.ToString("dd/MM/yyyy")</td>
+@using (Html.BeginForm())
+{
+    @Html.DropDownList("month", ViewBag.Month as SelectList, "-- Тут надо выбрать месяц --" , new {@class="form-select"})
+    @Html.DropDownList("year", ViewBag.Year as SelectList, "-- Тут надо выбрать год --" , new {@class="form-select"})
+    @Html.DropDownList("classId", ViewBag.ClassId as SelectList, "-- Тут надо выбрать класс --" , new {@class="form-select"})
+    @Html.DropDownList("subjectId", ViewBag.SubjectId as SelectList, "-- Тут надо выбрать предмет --" , new {@class="form-select"})
+    <input type="submit" value="Подтвердить" class="btn btn-success" />
+}
+@if (Model == null || ViewBag.Count == 0)
+{
+    <a>Тут ничего нет(</a>
+}
+else
+{
+    @if (ViewBag.SelectedYear != null && ViewBag.SelectedMonth != null){
+        <table class="table-bordered">
+            <tr>
+                <td width="200">Школьник</td>
+                @for (int i = 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
+                {
+                    <td>@i</td>
+                }
+            </tr>
+            @{
+                var studentGetsGrades = Model.Select(s => s.Student).Distinct();
+                foreach (var students in studentGetsGrades)
+                {
+                    <tr>
+                        <td width="200">@students.Name</td>
+                        @{
+                            var datesByGrade = Model.Select(d => new { d.Student, d.Date }).Where(s => s.Student.Name == students.Name);
+                            int lastCheckedDay = 0;
+                        }
+                        @foreach (var dates in datesByGrade.Distinct())
+                        {
+                            //Начать заполнять журнал со следующего дня после последнего проверенного. 31- пока заглушка
+                            for (int i = lastCheckedDay + 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
+                            {
+                                //Проверяем день
+                                if (i == dates.Date.Day)
+                                {
+                                    //Теперь проверяем кол-во оценок
+                                    string grades = "";
+                                    <td width="200">
+                                        @foreach (var item in @Model.Select(s => new { s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == dates.Date))
+                                        {
+                                            grades += item.Grade.ToString() + " ";
+                                        }
+                                        @grades
+                                    </td>
+                                    lastCheckedDay = dates.Date.Day;
+                                    break;
+                                }
+                                else
+                                {
+                                    <td width="200"></td>
+                                }
+                            }
+                        }
+                        @for (int i = lastCheckedDay; i < 31; i++)
+                        {
+                            <td width="200"></td>
+                        }
+                    </tr>
+                }
             }
-        }
-    </tr>
-</table>
+        </table>
+    }
+}
