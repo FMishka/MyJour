@@ -8,7 +8,7 @@ namespace MyJour.Models
         public int StudentId { get; set; }
         public int ClassId { get; set; }
         public int SubjectId { get; set; }
-        public int Grade { get; set; }
+        public int Grade { get; set; }                          // Возможно сделать str чтобы ставить тут посещаемость
         public int TypeControlId { get; set; }
         public DateTime Date { get; set; }
         public Student Student { get; set; }

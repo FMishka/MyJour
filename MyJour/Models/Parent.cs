@@ -9,6 +9,7 @@ namespace MyJour.Models
         public string Name { get; set; }
         public string Phone { get; set; }
         public string Address { get; set; }
+        public ICollection<StudentsByParents> StudentsByParents { get; set; }
 
     }
 }

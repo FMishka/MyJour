@@ -1,11 +1,23 @@
 ﻿@model ICollection<AcademicPerformance>
 @using (Html.BeginForm())
 {
-    @Html.DropDownList("month", ViewBag.Month as SelectList, "-- Тут надо выбрать месяц --" , new {@class="form-select"})
-    @Html.DropDownList("year", ViewBag.Year as SelectList, "-- Тут надо выбрать год --" , new {@class="form-select"})
-    @Html.DropDownList("classId", ViewBag.ClassId as SelectList, "-- Тут надо выбрать класс --" , new {@class="form-select"})
-    @Html.DropDownList("subjectId", ViewBag.SubjectId as SelectList, "-- Тут надо выбрать предмет --" , new {@class="form-select"})
+    <div style="margin-bottom: 5px">
+        @Html.DropDownList("month", ViewBag.Month as SelectList, "-- Тут надо выбрать месяц --" , new {@class="form-select"})
+    </div>
+    <div style="margin-bottom: 5px">
+        @Html.DropDownList("year", ViewBag.Year as SelectList, "-- Тут надо выбрать год --" , new {@class="form-select"})
+    </div>
+    <div style="margin-bottom: 5px">
+        @Html.DropDownList("classId", ViewBag.ClassId as SelectList, "-- Тут надо выбрать класс --" , new {@class="form-select"})
+    </div>
+    <div style="margin-bottom: 5px">
+        @Html.DropDownList("subjectId", ViewBag.SubjectId as SelectList, "-- Тут надо выбрать предмет --" , new {@class="form-select"})
+    </div>
     <input type="submit" value="Подтвердить" class="btn btn-success" />
+}
+@if (ViewBag.IsTeaher)
+{
+    <a asp-controller="Home" asp-action="SetHomework" class="btn btn-info">Задать домашнее задание</a>
 }
 @if (Model == null || ViewBag.Count == 0)
 {
@@ -20,6 +32,10 @@ else
                 @for (int i = 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
                 {
                     <td>@i</td>
+                }
+                @if (ViewBag.IsTeaher)
+                {
+                    <td width="200">Оценивание</td>
                 }
             </tr>
             @{
@@ -61,6 +77,12 @@ else
                         @for (int i = lastCheckedDay; i < 31; i++)
                         {
                             <td width="200"></td>
+                        }
+                        @if (ViewBag.IsTeaher)
+                        {
+                            <td>
+                                <a asp-controller="Home" asp-action="RateStudent" class="btn btn-success">Оценить</a>
+                            </td>
                         }
                     </tr>
                 }

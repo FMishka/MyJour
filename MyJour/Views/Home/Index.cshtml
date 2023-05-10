@@ -1,13 +1,45 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿<h1>Здравствуйте, @ViewBag.Name</h1>
+<br>
+@if (ViewBag.Role == "Teacher")
+{
+    <h2>Ваша роль в системе: @ViewBag.RoleFromTable</h2>
+    <br>
+    @if(ViewBag.Class != null)
+    {
+        <h3>Ваш класс - @ViewBag.Class</h3>
+        <br>
+    }
 }
+else if (ViewBag.Role == "Parent")
+{
+    <h2>Дети обучающиеся в школе:</h2>
+    <br>
+    {
+        int count = 0;
+        @foreach (var item in ViewBag.Students)
+        {
+            count++;
+            <a>@count. @item</a>
+            <br>
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
-<label>@Context.Session.GetString("Login")</label>
-<label>@Context.Session.GetString("Role")</label>
-<a class="btn btn-success" href="~/swagger/index.html">Swagger</a>
-<a class="btn btn-success" href="~/Account/Login">Login</a>
-<a class="btn btn-success" href="~/Account/Register">Register</a>
+    }
+}
+else
+{
+    <h2>Ваш класс - @ViewBag.Class</h2>
+    <br>
+    <h3>Родители, либо опекуны:</h3>
+    <br>
+    {
+        int count = 0;
+
+        @foreach (var item in ViewBag.Parents)
+        {
+            count++;
+            <a>@count. @item</a>
+            <br>
+        }
+
+    }
+}

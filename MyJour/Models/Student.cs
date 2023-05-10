@@ -9,5 +9,6 @@
         //int HealthId { get; set; }  Пока нет, скоро поменяется
         public Class Class { get; set; }
         public ICollection<AcademicPerformance> AcademicPerformance { get; set; }
+        public ICollection<StudentsByParents> StudentsByParents { get; set; }
     }
 }

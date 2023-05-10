@@ -17,7 +17,7 @@ namespace MyJour.Models
         public static List<SelectListItem> GetLast10Years()
         {
             List<SelectListItem> years = new List<SelectListItem>();
-            for (int i = DateTime.Now.Year - 10; i <= DateTime.Now.Year ; i++)
+            for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 10; i--)
             {
                 years.Add(new SelectListItem { Text = i.ToString(), Value = i.ToString() });
             }

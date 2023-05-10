@@ -1,0 +1,21 @@
+﻿@model IEnumerable<AcademicPerformance>
+
+@using (Html.BeginForm()){
+    <div class="form-group">
+        <h3>Класс</h3>
+        @Html.DropDownList("classId", ViewBag.Classes as SelectList, "-- Тут надо выбрать класс --", new{@class="form-select"})
+        <h3>Школьник</h3>
+        @Html.DropDownList("studentId", ViewBag.Students as SelectList, "-- Тут надо выбрать школьника --", new{@class="form-select"})
+        <h3>Предмет</h3>
+        @Html.DropDownList("subjectId", ViewBag.Subjects as SelectList, "-- Тут надо выбрать предмет --", new{@class="form-select"})
+        <h3>Оченка</h3>
+        <input name="" class="form-select" />
+        <h3>Тип контроля</h3>
+        @Html.DropDownList("typeControllId", ViewBag.Subjects as SelectList, "-- Тут надо выбрать тип контроля --", new{@class="form-select"})
+        <h3>Вторая оценка</h3>
+        <input name="grade2" class="form-select" />
+        <h3>Дата</h3>
+    </div>
+
+    <input type="submit" value="Оценить" class="btn btn-success" />
+}
