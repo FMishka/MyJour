@@ -45,17 +45,17 @@ namespace MyJour.Controllers
             {
                 var role = db.Teacher.Select(u => new { u.Login, u.Password, u.Role.Name }).FirstOrDefault(u => u.Login == user.Login && u.Password == user.Password);
                 SetUserData(authenticatedUser.Id.ToString(), authenticatedUser.Login, role.Name, authenticatedUser.Name, true);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Journal", "Home");
             }
             else if ((authenticatedUser = db.Parent.Select(u => new { u.Id, u.Login, u.Password, u.Name}).FirstOrDefault(u => u.Login == user.Login && u.Password == user.Password)) != null)
             {
                 SetUserData(authenticatedUser.Id.ToString(), authenticatedUser.Login, "Parent", authenticatedUser.Name, false);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Journal", "Home");
             }
             else if ((authenticatedUser = db.Student.Select(u => new { u.Id, u.Login, u.Password, u.Name }).FirstOrDefault(u => u.Login == user.Login && u.Password == user.Password)) != null)
             {
                 SetUserData(authenticatedUser.Id.ToString(), authenticatedUser.Login, "Student", authenticatedUser.Name, false);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Journal", "Home");
             }
 
             ViewBag.ErrorMessage = "Неправильное имя пользователя или пароль.";
