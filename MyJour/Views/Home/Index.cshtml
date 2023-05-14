@@ -1,45 +1,67 @@
-﻿<h1>Здравствуйте, @ViewBag.Name</h1>
+﻿<div style="background-color:darkgray; border-radius: 10px; padding: 40px;">
+    <h1>Здравствуйте, @ViewBag.Name</h1>
+</div>
 <br>
 @if (ViewBag.Role == "Teacher")
 {
-    <h2>Ваша роль в системе: @ViewBag.RoleFromTable</h2>
+    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+        <h2>Ваша роль в системе: @ViewBag.RoleFromTable</h2>
+    </div>
     <br>
-    @if(ViewBag.Class != null)
-    {
-        <h3>Ваш класс - @ViewBag.Class</h3>
-        <br>
-    }
+    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+        @if (ViewBag.Class != null)
+        {
+            <h3>Информация о руководстве класса:</h3>
+            <h4>Класс, которым вы руководите: @ViewBag.Class</h4>
+            <br>
+        }
+        else
+        {
+            <h3>У вас нет класса под вашим руководством</h3>
+            <br>
+        }
+    </div>
+    <br>
 }
 else if (ViewBag.Role == "Parent")
 {
-    <h2>Дети обучающиеся в школе:</h2>
-    <br>
-    {
-        int count = 0;
-        @foreach (var item in ViewBag.Students)
-        {
-            count++;
-            <a>@count. @item</a>
-            <br>
+    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+        <h2>Дети обучающиеся в школе:</h2>
+        <br>
+        @{
+            int count = 0;
+            @foreach (var item in ViewBag.Students)
+            {
+                count++;
+                <h4>@count. @item</h4>
+            }
         }
-
-    }
+    </div>
+    <br>
 }
 else
 {
-    <h2>Ваш класс - @ViewBag.Class</h2>
+    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+        <h2>Класс, в котором вы обучаетесь: @ViewBag.Class</h2>
+    </div>
     <br>
-    <h3>Родители, либо опекуны:</h3>
-    <br>
-    {
-        int count = 0;
-
-        @foreach (var item in ViewBag.Parents)
-        {
-            count++;
-            <a>@count. @item</a>
-            <br>
+    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+        <h3>Родители, либо опекуны:</h3>
+        <br>
+        @{
+            int count = 0;
+            @foreach (var item in ViewBag.Parents)
+            {
+                count++;
+                <h4>@count. @item</h4>
+                <br>
+            }
         }
-
-    }
+    </div>
+    <br>
 }
+<div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+    <h2>Персональные данные:</h2>
+    <h4>Номер телефона: @ViewBag.Phone</h4>
+    <h4>Адрес проживания: @ViewBag.Address</h4>
+</div>

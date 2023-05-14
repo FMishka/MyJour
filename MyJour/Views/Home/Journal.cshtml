@@ -7,50 +7,55 @@
     <div style="margin-bottom: 5px">
         @Html.DropDownList("year", ViewBag.Year as SelectList, "-- Тут надо выбрать год --" , new {@class="form-select"})
     </div>
-    <div style="margin-bottom: 5px">
-        @Html.DropDownList("classId", ViewBag.ClassId as SelectList, "-- Тут надо выбрать класс --" , new {@class="form-select"})
-    </div>
+    @if (ViewBag.IsTeaher || ViewBag.IsParent)
+    {
+       <div style="margin-bottom: 5px">
+            @Html.DropDownList("classId", ViewBag.ClassId as SelectList, "-- Тут надо выбрать класс --" , new {@class="form-select"})
+        </div> 
+    }
     <div style="margin-bottom: 5px">
         @Html.DropDownList("subjectId", ViewBag.SubjectId as SelectList, "-- Тут надо выбрать предмет --" , new {@class="form-select"})
     </div>
-    <input type="submit" value="Подтвердить" class="btn btn-success" />
+    <input style="margin-bottom: 5px" type="submit" value="Подтвердить" class="btn btn-success" />
+    <br>
 }
 @if (ViewBag.IsTeaher)
 {
-    <a asp-controller="Home" asp-action="SetHomework" class="btn btn-info">Задать домашнее задание</a>
+    <a style="margin-bottom: 5px" asp-controller="Home" asp-action="SetHomework" class="btn btn-warning">Задать домашнее задание</a>
+    <br>
 }
 @if (Model == null || ViewBag.Count == 0)
 {
-    <a>Тут ничего нет(</a>
+    <a>Результатов не найдено!</a>
 }
 else
 {
     @if (ViewBag.SelectedYear != null && ViewBag.SelectedMonth != null){
-        <table class="table-bordered">
+        <table>
             <tr>
-                <td width="200">Школьник</td>
+                <th width="400" style="text-align:center">Ученик</th>
                 @for (int i = 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
                 {
-                    <td>@i</td>
+                    <th style="text-align:center">@i</th>
                 }
                 @if (ViewBag.IsTeaher)
                 {
-                    <td width="200">Оценивание</td>
+                    <th width="200">Оценивание</th>
                 }
             </tr>
             @{
-                var studentGetsGrades = Model.Select(s => s.Student).Distinct();
+                var studentGetsGrades = Model.Select(s => s.Student).OrderBy(s=> s.Name).Distinct();
                 foreach (var students in studentGetsGrades)
                 {
-                    <tr>
-                        <td width="200">@students.Name</td>
+                    <tr style="">
+                        <td width="200" style="border-bottom: 1px solid black; border-right: 1px solid black">@students.Name</td>
                         @{
                             var datesByGrade = Model.Select(d => new { d.Student, d.Date }).Where(s => s.Student.Name == students.Name);
                             int lastCheckedDay = 0;
                         }
                         @foreach (var dates in datesByGrade.Distinct())
                         {
-                            //Начать заполнять журнал со следующего дня после последнего проверенного. 31- пока заглушка
+                            //Начать заполнять журнал со следующего дня после последнего проверенного
                             for (int i = lastCheckedDay + 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
                             {
                                 //Проверяем день
@@ -58,7 +63,7 @@ else
                                 {
                                     //Теперь проверяем кол-во оценок
                                     string grades = "";
-                                    <td width="200">
+                                    <td width="100" style="text-align: center; border-bottom: 1px solid black; border-right: 1px solid black">
                                         @foreach (var item in @Model.Select(s => new { s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == dates.Date))
                                         {
                                             grades += item.Grade.ToString() + " ";
@@ -70,17 +75,17 @@ else
                                 }
                                 else
                                 {
-                                    <td width="200"></td>
+                                    <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
                                 }
                             }
                         }
                         @for (int i = lastCheckedDay; i < 31; i++)
                         {
-                            <td width="200"></td>
+                            <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
                         }
                         @if (ViewBag.IsTeaher)
                         {
-                            <td>
+                            <td style="border-bottom: 1px solid black">
                                 <a asp-controller="Home" asp-action="RateStudent" class="btn btn-success">Оценить</a>
                             </td>
                         }

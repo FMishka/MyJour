@@ -11,27 +11,6 @@ namespace MyJour.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly ILogger<HomeController> _logger;
-        //передать соответствующим классам. типо передаёшь подключение к бд и данные, а функция возвращает ассоциативный список
-        public List<SelectListItem> GetAllClasses()
-        {
-            var list = db.Class.Select(s => new { s.Id, s.Number });
-            List<SelectListItem> classes = new List<SelectListItem>();
-            foreach (var item in list)
-            {
-                classes.Add(new SelectListItem { Text = item.Number.ToString(), Value = item.Id.ToString() });
-            }
-            return classes;
-        }
-        public List<SelectListItem> GetAllSubjects()
-        {
-            var list = db.Subject.Select(s => new { s.Id, s.Name });
-            List<SelectListItem> classes = new List<SelectListItem>();
-            foreach (var item in list)
-            {
-                classes.Add(new SelectListItem { Text = item.Name.ToString(), Value = item.Id.ToString() });
-            }
-            return classes;
-        }
 
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
@@ -44,6 +23,8 @@ namespace MyJour.Controllers
             {
                 ViewBag.Role = "";
                 ViewBag.Name = HttpContext.Session.GetString("Name");
+                ViewBag.Phone = "";
+                ViewBag.Address = "";
                 if (HttpContext.Session.GetString("IsTeacher") == "True")
                 {
                     string login = HttpContext.Session.GetString("Login");
@@ -60,19 +41,24 @@ namespace MyJour.Controllers
                     {
                         ViewBag.RoleFromTable = HttpContext.Session.GetString("Role");
                     }
-
-                    
+                    ViewBag.Phone = db.Teacher.Select(s => new { s.Id, s.Phone }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault().Phone; ;
+                    ViewBag.Address = db.Teacher.Select(s => new { s.Id, s.Address }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault().Address;
                 }
                 else if(HttpContext.Session.GetString("Role") == "Parent")
                 {
                     ViewBag.Role = "Parent";
-                    var studentByParent = db.StudentsByParents.Include(s => s.Student).Where(s => s.ParentId == Convert.ToInt32(HttpContext.Session.GetString("Id"))).Distinct().ToList();
+                    var studentByParent = db.StudentsByParents.Include(s => s.Student.Class)
+                        .Where(s => s.ParentId == Convert.ToInt32(HttpContext.Session.GetString("Id")))
+                        .Distinct()
+                        .ToList();
                     List<string> students = new List<string>();
                     foreach (var item in studentByParent)
                     {
-                        students.Add(item.Student.Name);
+                        students.Add(item.Student.Name + "; Класс, в котором обучается: " + item.Student.Class.Number + "\n");
                     }
                     ViewBag.Students = students;
+                    ViewBag.Phone = db.Parent.Select(s => new {s.Id, s.Phone}).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault().Phone;
+                    ViewBag.Address = db.Parent.Select(s => new { s.Id, s.Address }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault().Address;
                 }
                 else
                 {
@@ -80,13 +66,18 @@ namespace MyJour.Controllers
                     string login = HttpContext.Session.GetString("Login");
                     var classNumber = db.Student.Include(a => a.Class).Where(s => s.Login == login).FirstOrDefault().Class.Number;
                     ViewBag.Class = classNumber;
-                    var studentByParent = db.StudentsByParents.Include(s => s.Parent).Where(s => s.StudentId == Convert.ToInt32(HttpContext.Session.GetString("Id"))).Distinct().ToList();
+                    var studentByParent = db.StudentsByParents.Include(s => s.Parent)
+                        .Where(s => s.StudentId == Convert.ToInt32(HttpContext.Session.GetString("Id")))
+                        .Distinct()
+                        .ToList();
                     List<string> parents = new List<string>();
                     foreach (var item in studentByParent)
                     {
                         parents.Add(item.Parent.Name);
                     }
                     ViewBag.Parents = parents;
+                    ViewBag.Phone = db.Student.Select(s => new { s.Id, s.Phone }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault().Phone;
+                    ViewBag.Address = db.Student.Select(s => new { s.Id, s.Address }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault().Address;
                 }
                 return View();
             }
@@ -102,22 +93,34 @@ namespace MyJour.Controllers
         {
             ViewBag.Month = Date.GetAllMonth();
             ViewBag.SelectedMonth = month;
-            ViewBag.Year = Date.GetLast10Years();
+            ViewBag.Year = Date.GetLast2Years();
             ViewBag.SelectedYear = year;
-            ViewBag.ClassId = GetAllClasses();
+            ViewBag.ClassId = Class.GetAllClasses(db);
             ViewBag.SelectedClassId = classId;
-            ViewBag.SubjectId = GetAllSubjects();
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
             ViewBag.SelectedSubjectId = subjectId;
 
             ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+            ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false; 
 
             if (ViewBag.SelectedClassId != null && ViewBag.SelectedSubjectId != null)
             {
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
-                                .Include(c => c.Class)
-                                .Include(sub => sub.Subject)
-                                .Where(a => a.ClassId == Convert.ToInt32(classId) && a.SubjectId == Convert.ToInt32(subjectId) && a.Date.Month == Convert.ToInt32(month) && a.Date.Year == Convert.ToInt32(year))
-                                .ToList();
+                    .Include(c => c.Class)
+                    .Include(sub => sub.Subject)
+                    .Where(a => a.ClassId == Convert.ToInt32(classId) && a.SubjectId == Convert.ToInt32(subjectId) && a.Date.Month == Convert.ToInt32(month) && a.Date.Year == Convert.ToInt32(year))
+                    .ToList();
+                ViewBag.Count = academicPerformance.Count;
+                return View(academicPerformance);
+            }
+            else if (ViewBag.SelectedSubjectId != null && HttpContext.Session.GetString("Role") == "Student")
+            {
+                var userClassId = db.Student.Select(s => s.ClassId).FirstOrDefault();
+                var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
+                    .Include(c => c.Class)
+                    .Include(sub => sub.Subject)
+                    .Where(a => a.ClassId == userClassId && a.SubjectId == Convert.ToInt32(subjectId) && a.Date.Month == Convert.ToInt32(month) && a.Date.Year == Convert.ToInt32(year))
+                    .ToList();
                 ViewBag.Count = academicPerformance.Count;
                 return View(academicPerformance);
             }

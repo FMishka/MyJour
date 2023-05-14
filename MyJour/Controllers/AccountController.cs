@@ -24,6 +24,7 @@ namespace MyJour.Controllers
         }
         public IActionResult Logout()
         {
+            HttpContext.Session.Remove("Id");
             HttpContext.Session.Remove("Role");
             HttpContext.Session.Remove("Login");
             HttpContext.Session.Remove("Name");
