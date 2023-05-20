@@ -11,6 +11,7 @@ namespace MyJour.Models
         public Teacher Teacher { get; set; }
         public Class Class { get; set; }
         public ICollection<AcademicPerformance> AcademicPerformance { get; set;}
+        public ICollection<Homework> Homework { get; set;}
         static public List<SelectListItem> GetAllSubjects(ApplicationDbContext db)
         {
             var list = db.Subject.Select(s => new { s.Id, s.Name });

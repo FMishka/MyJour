@@ -23,17 +23,10 @@ namespace MyJour.Models
             }
             return years;
         }
-        public static string ToMonthName(DateTime dateTime)
+        public static string ToMonthName(int month)
         {
-            string month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(dateTime.Month);
-            char[] charMonth = month.ToCharArray();
-            charMonth[0] = char.ToUpper(charMonth[0]);
-            return new string(charMonth);
-        }
-        public static string ToMonthName(int _month)
-        {
-            string month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(_month);
-            char[] charMonth = month.ToCharArray();
+            string _month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month);
+            char[] charMonth = _month.ToCharArray();
             charMonth[0] = char.ToUpper(charMonth[0]);
             return new string(charMonth);
         }

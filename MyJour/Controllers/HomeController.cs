@@ -10,11 +10,9 @@ namespace MyJour.Controllers
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext db;
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
             db = context;
         }
         public IActionResult Index()
@@ -89,7 +87,7 @@ namespace MyJour.Controllers
         }
         //Сделать ограниченную выборку для школьника и опекуна этого школьника
         [RoleAuthorization("True", "All")]
-        public IActionResult Journal(string month, string year, string classId, string subjectId)
+        public IActionResult Journal(int? month, int? year, int? classId, int? subjectId)
         {
             ViewBag.Month = Date.GetAllMonth();
             ViewBag.SelectedMonth = month;
@@ -103,23 +101,23 @@ namespace MyJour.Controllers
             ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
             ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false; 
 
-            if (ViewBag.SelectedClassId != null && ViewBag.SelectedSubjectId != null)
+            if (classId != null && subjectId != null)
             {
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
                     .Include(sub => sub.Subject)
-                    .Where(a => a.ClassId == Convert.ToInt32(classId) && a.SubjectId == Convert.ToInt32(subjectId) && a.Date.Month == Convert.ToInt32(month) && a.Date.Year == Convert.ToInt32(year))
+                    .Where(a => a.ClassId == classId && a.SubjectId == subjectId && a.Date.Month == month && a.Date.Year == year)
                     .ToList();
                 ViewBag.Count = academicPerformance.Count;
                 return View(academicPerformance);
             }
-            else if (ViewBag.SelectedSubjectId != null && HttpContext.Session.GetString("Role") == "Student")
+            else if (subjectId != null && HttpContext.Session.GetString("Role") == "Student")
             {
-                var userClassId = db.Student.Select(s => s.ClassId).FirstOrDefault();
+                var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault(); ;
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
                     .Include(sub => sub.Subject)
-                    .Where(a => a.ClassId == userClassId && a.SubjectId == Convert.ToInt32(subjectId) && a.Date.Month == Convert.ToInt32(month) && a.Date.Year == Convert.ToInt32(year))
+                    .Where(a => a.ClassId == userClassId.ClassId && a.SubjectId == subjectId && a.Date.Month == month && a.Date.Year == year)
                     .ToList();
                 ViewBag.Count = academicPerformance.Count;
                 return View(academicPerformance);
@@ -131,8 +129,33 @@ namespace MyJour.Controllers
         {
             return View();
         }
-        public IActionResult Homework()
+        [RoleAuthorization("True", "All")]
+        public IActionResult Homework(int? classId, int? subjectId)
         {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
+
+            ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+            ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false;
+
+            int? currentClassId;
+            if (HttpContext.Session.GetString("Role") == "Student")
+            {
+                var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault();
+                currentClassId = userClassId.ClassId;
+            }
+            else
+            {
+                currentClassId = classId;
+            }
+            if (ViewBag.SubjectId != null)
+            {
+
+                    var homework = db.Homework.Include(a => a.Class).Include(s => s.Subject).Where(s => s.SubjectId == subjectId && s.ClassId == currentClassId).ToList();
+                    ViewBag.Count = homework.Count;
+                    return View(homework);
+                
+            }
             return View();
         }
         public IActionResult SetHomework()

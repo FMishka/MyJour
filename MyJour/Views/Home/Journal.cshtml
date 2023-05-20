@@ -55,9 +55,18 @@
                                             DateTime dt = new DateTime(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth), i);
                                             string date = dt.ToString("ddd");
                                         }
-                                        @i
-                                        <br>
-                                        @date
+                                        @if(date == "вс" || date == "сб")
+                                        {
+                                            <a style="color:orangered">@i</a>
+                                            <br>
+                                            <a style="color:orangered">@date</a>
+                                        }
+                                        else
+                                        {
+                                            <a>@i</a>
+                                            <br>
+                                            <a>@date</a>
+                                        }
                                     </th>
                                 }
                                 @if (ViewBag.IsTeaher)
@@ -88,9 +97,9 @@
                                                     <td width="100" style="text-align: center; border-bottom: 1px solid black; border-right: 1px solid black">
                                                         @foreach (var item in @Model.Select(s => new { s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == dates.Date))
                                                         {
-                                                            grades += item.Grade.ToString() + " ";
+                                                            grades += item.Grade.ToString() + "/";
                                                         }
-                                                        @grades
+                                                        @grades.Trim('/')
                                                     </td>
                                                     lastCheckedDay = dates.Date.Day;
                                                     break;

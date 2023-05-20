@@ -1,0 +1,58 @@
+﻿@model ICollection<Homework>
+@using (Html.BeginForm())
+{
+    <div class="container-fluid">
+        <div class="row">
+            @if (ViewBag.IsTeaher || ViewBag.IsParent)
+            {
+                <div class="col" style="margin-bottom: 5px; width: 10%">
+                    <h5>Выберите класс:</h5>
+                    @Html.DropDownList("classId", ViewBag.ClassId as SelectList, new {@class="form-select"})
+                </div>
+            }
+            <div class="col" style="margin-bottom: 5px; width: 10%">
+                <h5>Выберите школьный предмет:</h5>
+                @Html.DropDownList("subjectId", ViewBag.SubjectId as SelectList, new {@class="form-select"})
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-11">
+                <input style="margin-bottom: 5px" type="submit" value="Подтвердить" class="btn btn-success" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                @if (ViewBag.IsTeaher)
+                {
+                    <a style="margin-bottom: 5px" asp-controller="Home" asp-action="SetHomework" class="btn btn-warning">Задать домашнее задание</a>
+                }
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                @if (Model == null || ViewBag.Count == 0)
+                {
+                    <a>Результатов не найдено!</a>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <div style="margin-bottom:20px">
+                            <div style="background-color:darkgray; border-radius: 10px; padding: 20px;">
+                                <h2>Предмет: @item.Subject.Name</h2>
+                            </div>
+                            <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+                                <h3>Задание:</h3>
+                                <h4>@item.Task</h4>
+                                <br>
+                                <h3>Срок сдачи:</h3>
+                                <h4>@item.Deadline.ToString("d")</h4>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
