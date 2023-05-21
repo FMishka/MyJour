@@ -159,8 +159,22 @@ namespace MyJour.Controllers
             return View();
         }
         [RoleAuthorization("True", "All")]
-        public IActionResult SetHomework()
+        public IActionResult SetHomework(int classId, int subjectId, string? task, DateTime deadline)
         {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
+
+            ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+
+            if (classId != null && subjectId != null && task != null && deadline != null)
+            {
+                Models.Homework homework = new Homework { ClassId = classId, SubjectId = subjectId, Task = task, Deadline = deadline };
+                db.Homework.Add(homework);
+                db.SaveChanges();
+                
+                return RedirectToAction("Homework");
+            }
+
             return View();
         }
         [RoleAuthorization("True", "All")]
