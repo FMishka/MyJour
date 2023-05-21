@@ -17,6 +17,8 @@ namespace MyJour.Models
         public DbSet<TypeControl> TypeControl { get; set; }
         public DbSet<StudentsByParents> StudentsByParents { get; set; }
         public DbSet<Homework> Homework { get; set; }
+        public DbSet<Timetable> Timetable { get; set; }
+        public DbSet<LessonTime> LessonTime { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             Database.EnsureCreated();

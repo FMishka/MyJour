@@ -30,5 +30,15 @@ namespace MyJour.Models
             charMonth[0] = char.ToUpper(charMonth[0]);
             return new string(charMonth);
         }
+        public static List<SelectListItem> GetWeekdays()
+        {
+            List<SelectListItem> weekdays = new List<SelectListItem>();
+            for (int i = 1; i <= 5; i++)
+            {
+                DateTime dt = new DateTime(2023, 05, i);
+                weekdays.Add(new SelectListItem { Text = dt.ToString("ddd") , Value = dt.ToString("ddd") });
+            }
+            return weekdays;
+        }
     }
 }

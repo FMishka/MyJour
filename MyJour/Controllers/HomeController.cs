@@ -158,8 +158,41 @@ namespace MyJour.Controllers
             }
             return View();
         }
+        [RoleAuthorization("True", "All")]
         public IActionResult SetHomework()
         {
+            return View();
+        }
+        [RoleAuthorization("True", "All")]
+        public IActionResult Timetable(int? classId, string weekdays)
+        {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.Weekdays = Date.GetWeekdays();
+
+            ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+            ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false;
+
+            int? currentClassId;
+            if (HttpContext.Session.GetString("Role") == "Student")
+            {
+                var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault();
+                currentClassId = userClassId.ClassId;
+            }
+            else
+            {
+                currentClassId = classId;
+            }
+            if (ViewBag.Weekdays != null)
+            {
+                var timetable = db.Timetable.Include(t => t.LessonTime)
+                    .Include(a => a.Class)
+                    .Include(s => s.Subject)
+                    .Where(s =>  s.ClassId == currentClassId && s.Day == weekdays).ToList();
+                ViewBag.Count = timetable.Count;
+                return View(timetable);
+            }
+
+
             return View();
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
