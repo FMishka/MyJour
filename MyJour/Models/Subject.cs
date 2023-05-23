@@ -22,6 +22,5 @@ namespace MyJour.Models
             }
             return classes;
         }
-
     }
 }

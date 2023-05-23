@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyJour.Attribute;
@@ -124,9 +125,35 @@ namespace MyJour.Controllers
             }
             return View();
         }
+        
         [RoleAuthorization("True", "All")]
-        public IActionResult RateStudent()
+        [Microsoft.AspNetCore.Mvc.Route("RateStudent/{studentId}/{classId}/{subjectId}")]
+        public IActionResult RateStudent(int studentId, int classId, int subjectId, string grade1, string grade2, int typeControlId, DateTime date)
         {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
+            ViewBag.TypeControlId = TypeControl.GetAllTypesControl(db);
+
+            if (grade1 != "" && grade1 != null)
+            {
+                if (grade2 != "" && grade2 != null)
+                {
+                    var academicPerformance1 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade1), TypeControlId = typeControlId, Date = date };
+                    var academicPerformance2 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade2), TypeControlId = typeControlId, Date = date };
+                    db.Add(academicPerformance1);
+                    db.SaveChanges();
+                    db.Add(academicPerformance2);
+                    db.SaveChanges();
+                    return RedirectToAction("Journal");
+                }
+                else
+                {
+                    var academicPerformance1 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade1), TypeControlId = typeControlId, Date = date };
+                    db.Add(academicPerformance1);
+                    db.SaveChanges();
+                    return RedirectToAction("Journal");
+                }
+            }
             return View();
         }
         [RoleAuthorization("True", "All")]

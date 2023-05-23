@@ -117,7 +117,7 @@
                                         @if (ViewBag.IsTeaher)
                                         {
                                             <td style="border-bottom: 1px solid black">
-                                                <a asp-controller="Home" asp-action="RateStudent" class="btn btn-success">Оценить</a>
+                                                <a name="studendId" href="@Url.Action("RateStudent", "Home", new {studentId = @students.Id, classId = students.ClassId, subjectId = Convert.ToInt32(ViewBag.SelectedSubjectId) })" class="btn btn-success">Оценить</a>
                                             </td>
                                         }
                                     </tr>
