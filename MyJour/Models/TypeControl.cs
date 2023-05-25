@@ -7,13 +7,20 @@ namespace MyJour.Models
         public int Id { get; set; }
         public string Type { get; set; }
         public ICollection<AcademicPerformance> AcademicPerformance { get; set;}
-        static public List<SelectListItem> GetAllTypesControl(ApplicationDbContext db)
+        static public List<SelectListItem> GetAllTypesControl(ApplicationDbContext db, int? selectedId = null)
         {
             var list = db.TypeControl.Select(s => new { s.Id, s.Type });
             List<SelectListItem> classes = new List<SelectListItem>();
             foreach (var item in list)
             {
-                classes.Add(new SelectListItem { Text = item.Type.ToString(), Value = item.Id.ToString() });
+                if (item.Id.ToString() == selectedId.ToString())
+                {
+                    classes.Add(new SelectListItem { Text = item.Type.ToString(), Value = item.Id.ToString(), Selected = true });
+                }
+                else
+                {
+                    classes.Add(new SelectListItem { Text = item.Type.ToString(), Value = item.Id.ToString() });
+                }
             }
             return classes;
         }

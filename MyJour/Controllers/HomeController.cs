@@ -104,6 +104,7 @@ namespace MyJour.Controllers
 
             if (classId != null && subjectId != null)
             {
+                ViewBag.Students = db.Student.Where(s => s.ClassId == classId).ToList();
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
                     .Include(sub => sub.Subject)
@@ -114,7 +115,9 @@ namespace MyJour.Controllers
             }
             else if (subjectId != null && HttpContext.Session.GetString("Role") == "Student")
             {
-                var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault(); ;
+                
+                var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault();
+                ViewBag.Students = db.Student.Where(s => s.ClassId == userClassId.ClassId).ToList();
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
                     .Include(sub => sub.Subject)
@@ -125,13 +128,71 @@ namespace MyJour.Controllers
             }
             return View();
         }
-        
-        [RoleAuthorization("True", "All")]
+        [RoleAuthorization("True","All")]
+        [Microsoft.AspNetCore.Mvc.Route("UpdateStudentGrade/{id}")]
+        public IActionResult UpdateStudentGrade(string id, string submit, string grade1, string grade2, int typeControlId, DateTime date)
+        {
+            ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+            string[] gradeIds;
+            gradeIds = id.Split(';');
+            var academicPerformance1 = db.AcademicPerfomance.AsNoTracking().Include(t => t.TypeControl).FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[0]));
+            ViewBag.Grade2 = null;
+            if (gradeIds.Count() == 2)
+            {
+                var academicPerformance2 = db.AcademicPerfomance.AsNoTracking().FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[1]));
+                ViewBag.Grade2 = academicPerformance2.Grade;
+            }
+            ViewBag.Grade1 = academicPerformance1.Grade;
+            if (ViewBag.IsTeacher == null)
+            {
+                ViewBag.Type = academicPerformance1.TypeControl.Type;
+            }
+            else
+            {
+                ViewBag.TypeControlId = TypeControl.GetAllTypesControl(db, academicPerformance1.TypeControlId);
+            }
+            
+            ViewBag.Date = academicPerformance1.Date;
+
+            if(submit == "Подтвердить")
+            {
+                if (gradeIds.Count() == 2)
+                {
+                    AcademicPerformance academic2 = new AcademicPerformance
+                    {
+                        Id = Convert.ToInt32(gradeIds[1]),
+                        StudentId = academicPerformance1.StudentId,
+                        ClassId = academicPerformance1.ClassId,
+                        SubjectId = academicPerformance1.SubjectId,
+                        Grade = Convert.ToInt32(grade2),
+                        TypeControlId = typeControlId,
+                        Date = date
+                    };
+                    db.Entry(academic2).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                AcademicPerformance academic = new AcademicPerformance
+                {
+                    Id = Convert.ToInt32(gradeIds[0]),
+                    StudentId = academicPerformance1.StudentId,
+                    ClassId = academicPerformance1.ClassId,
+                    SubjectId = academicPerformance1.SubjectId,
+                    Grade = Convert.ToInt32(grade1),
+                    TypeControlId = typeControlId,
+                    Date = date
+                };
+                db.Entry(academic).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Journal");
+            }
+
+            return View();
+        }
+
+        [RoleAuthorization("True")]
         [Microsoft.AspNetCore.Mvc.Route("RateStudent/{studentId}/{classId}/{subjectId}")]
         public IActionResult RateStudent(int studentId, int classId, int subjectId, string grade1, string grade2, int typeControlId, DateTime date)
         {
-            ViewBag.ClassId = Class.GetAllClasses(db);
-            ViewBag.SubjectId = Subject.GetAllSubjects(db);
             ViewBag.TypeControlId = TypeControl.GetAllTypesControl(db);
 
             if (grade1 != "" && grade1 != null)
@@ -156,6 +217,7 @@ namespace MyJour.Controllers
             }
             return View();
         }
+
         [RoleAuthorization("True", "All")]
         public IActionResult Homework(int? classId, int? subjectId)
         {

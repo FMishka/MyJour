@@ -1,0 +1,63 @@
+﻿@using (Html.BeginForm())
+{
+    <div class="container-fluid">
+        <div>
+            @if (ViewBag.IsTeaher)
+            {
+                int grade1 = ViewBag.Grade1;
+                int? grade2 = ViewBag.Grade2;
+                DateTime date = ViewBag.Date;
+
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Напишите оценку:</h5>
+                    @Html.TextBox("grade1", grade1, new {@class="form-control form-group"})
+                </div>
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Напишите вторую оценку:</h5>
+                    @Html.TextBox("grade2", grade2, new {@class="form-control form-group"})
+                </div>
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Выберите тип контроля:</h5>
+                    @Html.DropDownList("typeControlId", ViewBag.TypeControlId as SelectList, new {@class="form-select"})
+                </div>
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Выберите срок сдачи:</h5>
+                    <input name="date" type="Date" class="form-control" value="@date.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="row">
+                    <div class="col-11">
+                        <input style="margin-bottom: 5px" type="submit" name="submit" value="Подтвердить" class="btn btn-success" />
+                        <input style="margin-bottom: 5px" type="submit" name="submit" value="Отменить" class="btn btn-danger" asp-controller="Home" asp-action="Journal"/>
+                    </div>
+                </div>
+            }
+            else
+            {
+                int grade1 = ViewBag.Grade1;
+                int? grade2 = ViewBag.Grade2;
+                DateTime date = ViewBag.Date;
+                string typeControl = Convert.ToString(ViewBag.Type);
+
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Оценка:</h5>
+                    <h3>@grade1</h3>
+                </div>
+                @if (grade2 != null)
+                {
+                    <div class="col" style="margin-bottom: 5px">
+                        <h5>Вторая оценка:</h5>
+                        <h3>@grade2</h3>
+                    </div>
+                }
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Тип контроля:</h5>
+                    <h3>@typeControl</h3>
+                </div>
+                <div class="col" style="margin-bottom: 5px">
+                    <h5>Дата сдачи:</h5>
+                    <h3>@date.ToString("d")</h3>
+                </div>
+            }
+        </div>
+    </div>
+}

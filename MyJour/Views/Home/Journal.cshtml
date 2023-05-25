@@ -38,7 +38,7 @@
         </div>
         <div class="row">
             <div class="row">
-                @if (Model == null || ViewBag.Count == 0)
+                @if (Model == null)
                 {
                     <a>Результатов не найдено!</a>
                 }
@@ -75,7 +75,8 @@
                                 }
                             </tr>
                             @{
-                                var studentGetsGrades = Model.Select(s => s.Student).OrderBy(s => s.Name).Distinct();
+                                //var studentGetsGrades = Model.Select(s => s.Student).OrderBy(s => s.Name).Distinct();
+                                var studentGetsGrades = ViewBag.Students;
                                 foreach (var students in studentGetsGrades)
                                 {
                                     <tr style="">
@@ -94,12 +95,17 @@
                                                 {
                                                     //Теперь проверяем кол-во оценок
                                                     string grades = "";
+                                                    string gradeIds = "";
                                                     <td width="100" style="text-align: center; border-bottom: 1px solid black; border-right: 1px solid black">
-                                                        @foreach (var item in @Model.Select(s => new { s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == dates.Date))
+                                                        @foreach (var item in @Model.Select(s => new {s.Id, s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == dates.Date))
                                                         {
+                                                            gradeIds += item.Id.ToString() + ";";
                                                             grades += item.Grade.ToString() + "/";
                                                         }
-                                                        @grades.Trim('/')
+                                                        @{gradeIds = gradeIds.Trim(';');}
+                                                        <a style="color:black" href="@Url.Action("UpdateStudentGrade", "Home", new {id = gradeIds})">
+                                                            @grades.Trim('/')
+                                                        </a>
                                                     </td>
                                                     lastCheckedDay = dates.Date.Day;
                                                     break;
