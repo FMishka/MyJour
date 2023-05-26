@@ -298,6 +298,16 @@ namespace MyJour.Controllers
 
             return View();
         }
+        [RoleAuthorization("True")]
+        public IActionResult Plan(int subjectId, int classId)
+        {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
+
+            var plan = db.Plan.Include(s => s.Class).Include(d => d.Subject).Where(s => s.ClassId == classId && s.SubjectId == subjectId).ToList();
+
+            return View(plan);
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
