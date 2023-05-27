@@ -1,0 +1,18 @@
+﻿@using (Html.BeginForm())
+{
+    <div class="row">
+        <div class="col" style="margin-bottom: 5px; width: 10%">
+            <h5>Выберите класс:</h5>
+            @Html.DropDownList("classId", ViewBag.ClassId as SelectList, new {@class="form-select"})
+        </div>
+        <div class="row">
+            <div class="col-11">
+                <input style="margin-bottom: 5px" type="submit" value="Подтвердить" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+    <div style="background-color:darkgray; border-radius: 10px; padding: 40px;">
+        @{double avg = Convert.ToDouble(ViewBag.Avg);}
+        <h1>Средняя успеваемость данного класса: @Math.Round(avg,2)</h1>
+    </div>
+}

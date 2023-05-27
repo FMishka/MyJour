@@ -2,7 +2,7 @@
 {
     <div class="container-fluid">
         <div>
-            @if (ViewBag.IsTeaher)
+            @if (ViewBag.IsTeacher)
             {
                 int grade1 = ViewBag.Grade1;
                 int? grade2 = ViewBag.Grade2;
@@ -37,26 +37,25 @@
                 int? grade2 = ViewBag.Grade2;
                 DateTime date = ViewBag.Date;
                 string typeControl = Convert.ToString(ViewBag.Type);
-
-                <div class="col" style="margin-bottom: 5px">
-                    <h5>Оценка:</h5>
-                    <h3>@grade1</h3>
+                <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+                    <h2>Оценка: @grade1</h2>
                 </div>
+                <br>
                 @if (grade2 != null)
                 {
-                    <div class="col" style="margin-bottom: 5px">
-                        <h5>Вторая оценка:</h5>
-                        <h3>@grade2</h3>
+                    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+                        <h2>Вторая оценка: @grade2</h2>
                     </div>
+                    <br>
                 }
-                <div class="col" style="margin-bottom: 5px">
-                    <h5>Тип контроля:</h5>
-                    <h3>@typeControl</h3>
+                <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+                    <h2>Тип контроля: @typeControl</h2>
                 </div>
-                <div class="col" style="margin-bottom: 5px">
-                    <h5>Дата сдачи:</h5>
-                    <h3>@date.ToString("d")</h3>
+                <br>
+                <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+                    <h2>Дата сдачи: @date.ToString("d")</h2>
                 </div>
+                <br>
             }
         </div>
     </div>

@@ -22,6 +22,12 @@
         }
     </div>
     <br>
+    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
+        <a style="margin-bottom: 5px" asp-controller="Home" asp-action="ClassReport" class="btn btn-info">Средняя оценка класса</a>
+        <a style="margin-bottom: 5px" asp-controller="Home" asp-action="SubjectReport" class="btn btn-info">Средняя оценка по предмету</a>
+        <a style="margin-bottom: 5px" asp-controller="Home" asp-action="StudentReport" class="btn btn-info">Средняя оценка по школьников</a>
+    </div>
+    <br>
 }
 else if (ViewBag.Role == "Parent")
 {

@@ -132,7 +132,7 @@ namespace MyJour.Controllers
         [Microsoft.AspNetCore.Mvc.Route("UpdateStudentGrade/{id}")]
         public IActionResult UpdateStudentGrade(string id, string submit, string grade1, string grade2, int typeControlId, DateTime date)
         {
-            ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+            ViewBag.IsTeacher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
             string[] gradeIds;
             gradeIds = id.Split(';');
             var academicPerformance1 = db.AcademicPerfomance.AsNoTracking().Include(t => t.TypeControl).FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[0]));
@@ -143,7 +143,7 @@ namespace MyJour.Controllers
                 ViewBag.Grade2 = academicPerformance2.Grade;
             }
             ViewBag.Grade1 = academicPerformance1.Grade;
-            if (ViewBag.IsTeacher == null)
+            if (ViewBag.IsTeacher == false)
             {
                 ViewBag.Type = academicPerformance1.TypeControl.Type;
             }
@@ -307,6 +307,49 @@ namespace MyJour.Controllers
             var plan = db.Plan.Include(s => s.Class).Include(d => d.Subject).Where(s => s.ClassId == classId && s.SubjectId == subjectId).ToList();
 
             return View(plan);
+        }
+        [RoleAuthorization("True")]
+        public IActionResult ClassReport(int? classId)
+        {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.Avg = 0.0;
+            if (classId != null) 
+            {
+                var academic = db.AcademicPerfomance.Include(s => s.Class).Where(b => b.ClassId == classId).Average(a => a.Grade).ToString();
+                ViewBag.Avg = academic;
+            }
+            
+            return View();
+        }
+        [RoleAuthorization("True")]
+        public IActionResult SubjectReport(int? subjectId)
+        {
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
+            ViewBag.Avg = 0.0;
+            if (subjectId != null)
+            {
+                var academic = db.AcademicPerfomance.Include(s => s.Subject).Where(b => b.SubjectId == subjectId).Average(a => a.Grade).ToString();
+                ViewBag.Avg = academic;
+            }
+
+            return View();
+        }
+        [RoleAuthorization("True")]
+        public IActionResult StudentReport(int? classId, int? subjectId)
+        {
+            ViewBag.ClassId = Class.GetAllClasses(db);
+            ViewBag.SubjectId = Subject.GetAllSubjects(db);
+
+            ViewBag.List = 0.0;
+            if (classId != null && subjectId != null)
+            {
+                var academic = db.AcademicPerfomance.Include(s => s.Student)
+                    .Include(c => c.Class)
+                    .Include(sub => sub.Subject).Where(b => b.ClassId == classId && b.SubjectId == subjectId).ToList();
+                return View(academic);
+            }
+
+            return View();
         }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
