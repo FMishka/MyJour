@@ -104,7 +104,7 @@ namespace MyJour.Controllers
 
             if (classId != null && subjectId != null)
             {
-                ViewBag.Students = db.Student.Where(s => s.ClassId == classId).ToList();
+                ViewBag.Students = db.Student.Where(s => s.ClassId == classId).OrderBy(s => s.Name).ToList();
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
                     .Include(sub => sub.Subject)
@@ -117,7 +117,7 @@ namespace MyJour.Controllers
             {
                 
                 var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault();
-                ViewBag.Students = db.Student.Where(s => s.ClassId == userClassId.ClassId).ToList();
+                ViewBag.Students = db.Student.Where(s => s.ClassId == userClassId.ClassId).OrderBy(s => s.Name).ToList();
                 var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
                     .Include(sub => sub.Subject)
@@ -194,27 +194,44 @@ namespace MyJour.Controllers
         public IActionResult RateStudent(int studentId, int classId, int subjectId, string grade1, string grade2, int typeControlId, DateTime date)
         {
             ViewBag.TypeControlId = TypeControl.GetAllTypesControl(db);
-
-            if (grade1 != "" && grade1 != null)
+            try
             {
-                if (grade2 != "" && grade2 != null)
+                if (grade1 != "" && grade1 != null && Convert.ToInt32(grade1) <= 5 && Convert.ToInt32(grade1) >= 0)
                 {
-                    var academicPerformance1 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade1), TypeControlId = typeControlId, Date = date };
-                    var academicPerformance2 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade2), TypeControlId = typeControlId, Date = date };
-                    db.Add(academicPerformance1);
-                    db.SaveChanges();
-                    db.Add(academicPerformance2);
-                    db.SaveChanges();
-                    return RedirectToAction("Journal");
-                }
-                else
-                {
-                    var academicPerformance1 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade1), TypeControlId = typeControlId, Date = date };
-                    db.Add(academicPerformance1);
-                    db.SaveChanges();
-                    return RedirectToAction("Journal");
+                    if (grade2 != "" && grade2 != null && Convert.ToInt32(grade2) <= 5 && Convert.ToInt32(grade2) >= 0)
+                    {
+                        var academicPerformance1 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade1), TypeControlId = typeControlId, Date = date };
+                        var academicPerformance2 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = Convert.ToInt32(grade2), TypeControlId = typeControlId, Date = date };
+                        db.Add(academicPerformance1);
+                        db.SaveChanges();
+                        db.Add(academicPerformance2);
+                        db.SaveChanges();
+                        return RedirectToAction("Journal");
+                    }
+                    else
+                    {
+                        int grade = 0;
+                        if (grade1 == "н")
+                        {
+                            grade = 0;
+                        }
+                        else
+                        {
+                            grade = Convert.ToInt32(grade1);
+                        }
+                        var academicPerformance1 = new AcademicPerformance { ClassId = classId, SubjectId = subjectId, StudentId = studentId, Grade = grade, TypeControlId = typeControlId, Date = date };
+                        db.Add(academicPerformance1);
+                        db.SaveChanges();
+                        return RedirectToAction("Journal");
+                    }
                 }
             }
+            catch (Exception)
+            {
+
+                return RedirectToAction("Error");
+            }
+            
             return View();
         }
 

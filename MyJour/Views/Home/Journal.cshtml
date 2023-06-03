@@ -2,6 +2,7 @@
 @using (Html.BeginForm())
 {
     <div class="container-fluid">
+
         <div class="row">
             <div class="col" style="margin-bottom: 5px; width: 10%">
                 <h5>Выберите год:</h5>
@@ -46,90 +47,113 @@
                 {
                     @if (ViewBag.SelectedYear != null && ViewBag.SelectedMonth != null)
                     {
-                        <table>
-                            <tr>
-                                <th width="400" style="text-align:center">Ученик</th>
-                                @for (int i = 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
-                                {
-                                    <th style="text-align:center">@{
-                                            DateTime dt = new DateTime(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth), i);
-                                            string date = dt.ToString("ddd");
-                                        }
-                                        @if(date == "вс" || date == "сб")
-                                        {
-                                            <a style="color:orangered">@i</a>
-                                            <br>
-                                            <a style="color:orangered">@date</a>
-                                        }
-                                        else
-                                        {
-                                            <a>@i</a>
-                                            <br>
-                                            <a>@date</a>
-                                        }
-                                    </th>
-                                }
-                                @if (ViewBag.IsTeaher)
-                                {
-                                    <th width="200">Оценивание</th>
-                                }
-                            </tr>
-                            @{
-                                //var studentGetsGrades = Model.Select(s => s.Student).OrderBy(s => s.Name).Distinct();
-                                var studentGetsGrades = ViewBag.Students;
-                                foreach (var students in studentGetsGrades)
-                                {
-                                    <tr style="">
-                                        <td width="200" style="border-bottom: 1px solid black; border-right: 1px solid black">@students.Name</td>
-                                        @{
-                                            var datesByGrade = Model.Select(d => new { d.Student, d.Date }).Where(s => s.Student.Name == students.Name);
-                                            int lastCheckedDay = 0;
-                                        }
-                                        @foreach (var dates in datesByGrade.Distinct())
-                                        {
-                                            //Начать заполнять журнал со следующего дня после последнего проверенного
-                                            for (int i = lastCheckedDay + 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
+                            <table>
+                                <tr>
+                                    <th width="400" style="text-align:center">Ученик</th>
+                                    @for (int i = 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
+                                    {
+                                        <th style="text-align:center">@{
+                                                DateTime dt = new DateTime(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth), i);
+                                                string date = dt.ToString("ddd");
+                                            }
+                                            @if (date == "вс" || date == "сб")
                                             {
-                                                //Проверяем день
-                                                if (i == dates.Date.Day)
+                                                <a style="color:orangered">@i</a>
+                                                <br>
+                                                <a style="color:orangered">@date</a>
+                                            }
+                                            else
+                                            {
+                                                <a>@i</a>
+                                                <br>
+                                                <a>@date</a>
+                                                <br>
+                                            }
+                                            @{
+                                                var ctDate = Model.Select(s => new {s.Date, s.TypeControlId}).Where(s => s.TypeControlId == 2).Distinct().ToList();
+                                                foreach (var item in ctDate)
+                                                {
+                                                    if(item.Date == dt){
+                                                    <a style="color: red">КТ</a>
+                                                    <br>
+                                                    }
+                                                }
+                                            }
+                                        </th>
+                                    }
+                                    @if (ViewBag.IsTeaher)
+                                    {
+                                        <th width="200">Оценивание</th>
+                                    }
+                                </tr>
+                                @{
+                                    var studentGetsGrades = ViewBag.Students;
+                                    foreach (var students in studentGetsGrades)
+                                    {
+                                        <tr style="">
+                                            <td width="200" style="border-bottom: 1px solid black; border-right: 1px solid black">@students.Name</td>
+                                            @{
+                                                var datesByGrade = Model.Select(d => new { d.Student, d.Date }).Where(s => s.Student.Name == students.Name);
+                                                int lastCheckedDay = 0;
+                                            }
+                                            @for (int i = lastCheckedDay + 1; i <= DateTime.DaysInMonth(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth)); i++)
+                                            {
+                                                var dates = datesByGrade.Select(s => s.Date).Distinct().ToList();
+                                                var date = new DateTime(ViewBag.SelectedYear, ViewBag.SelectedMonth, i);
+                                                //Проверяем день на ниличие оценок
+                                                if (dates.Contains(date))
                                                 {
                                                     //Теперь проверяем кол-во оценок
                                                     string grades = "";
                                                     string gradeIds = "";
                                                     <td width="100" style="text-align: center; border-bottom: 1px solid black; border-right: 1px solid black">
-                                                        @foreach (var item in @Model.Select(s => new {s.Id, s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == dates.Date))
+                                                        @foreach (var item in @Model.Select(s => new { s.Id, s.Student, s.Date, s.Grade }).Where(s => s.Student.Name == students.Name && s.Date == date))
                                                         {
                                                             gradeIds += item.Id.ToString() + ";";
-                                                            grades += item.Grade.ToString() + "/";
+                                                            if (item.Grade == 0)
+                                                            {
+                                                                grades += "н";
+                                                            }
+                                                            else
+                                                            {
+                                                                grades += item.Grade.ToString() + "/";
+                                                            }
                                                         }
-                                                        @{gradeIds = gradeIds.Trim(';');}
+                                                        @{
+                                                            gradeIds = gradeIds.Trim(';');
+                                                        }
                                                         <a style="color:black" href="@Url.Action("UpdateStudentGrade", "Home", new {id = gradeIds})">
                                                             @grades.Trim('/')
                                                         </a>
                                                     </td>
-                                                    lastCheckedDay = dates.Date.Day;
-                                                    break;
+                                                    lastCheckedDay = i;
                                                 }
                                                 else
                                                 {
-                                                    <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
+                                                    var dt = new DateTime(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth), i);
+                                                    if (dt.ToString("ddd") == "сб" || dt.ToString("ddd") == "вс" ){
+                                                        <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
+                                                    }
+                                                    else{
+                                                        <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black">
+                                                            @Html.TextBox("grade", "", new {@class="form-control form-group"})
+                                                        </td>
+                                                    }
+                                                    lastCheckedDay = i;
+                                                    
                                                 }
                                             }
-                                        }
-                                        @for (int i = lastCheckedDay; i < 31; i++)
-                                        {
-                                            <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
-                                        }
-                                        @if (ViewBag.IsTeaher)
-                                        {
-                                            <td style="border-bottom: 1px solid black">
-                                                <a name="studendId" href="@Url.Action("RateStudent", "Home", new {studentId = @students.Id, classId = students.ClassId, subjectId = Convert.ToInt32(ViewBag.SelectedSubjectId) })" class="btn btn-success">Оценить</a>
-                                            </td>
-                                        }
-                                    </tr>
+                                            @if (ViewBag.IsTeaher)
+                                            {
+                                                <td style="border-bottom: 1px solid black">
+                                                    <a name="studendId" href="@Url.Action("RateStudent", "Home", new {studentId = @students.Id, classId = students.ClassId, subjectId = Convert.ToInt32(ViewBag.SelectedSubjectId) })" class="btn btn-success">Оценить</a>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
                                 }
-                            }
-                        </table>
+                            </table>
+
                     }
                 }
             </div>
