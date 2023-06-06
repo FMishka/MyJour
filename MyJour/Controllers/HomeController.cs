@@ -86,47 +86,93 @@ namespace MyJour.Controllers
         {
             return View();
         }
-        //Сделать ограниченную выборку для школьника и опекуна этого школьника
         [RoleAuthorization("True", "All")]
-        public IActionResult Journal(int? month, int? year, int? classId, int? subjectId)
+        public IActionResult Journal()
         {
             ViewBag.Month = Date.GetAllMonth();
-            ViewBag.SelectedMonth = month;
             ViewBag.Year = Date.GetLast2Years();
-            ViewBag.SelectedYear = year;
             ViewBag.ClassId = Class.GetAllClasses(db);
-            ViewBag.SelectedClassId = classId;
             ViewBag.SubjectId = Subject.GetAllSubjects(db);
-            ViewBag.SelectedSubjectId = subjectId;
-
             ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
-            ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false; 
-
-            if (classId != null && subjectId != null)
-            {
-                ViewBag.Students = db.Student.Where(s => s.ClassId == classId).OrderBy(s => s.Name).ToList();
-                var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
-                    .Include(c => c.Class)
-                    .Include(sub => sub.Subject)
-                    .Where(a => a.ClassId == classId && a.SubjectId == subjectId && a.Date.Month == month && a.Date.Year == year)
-                    .ToList();
-                ViewBag.Count = academicPerformance.Count;
-                return View(academicPerformance);
-            }
-            else if (subjectId != null && HttpContext.Session.GetString("Role") == "Student")
-            {
-                
-                var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault();
-                ViewBag.Students = db.Student.Where(s => s.ClassId == userClassId.ClassId).OrderBy(s => s.Name).ToList();
-                var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
-                    .Include(c => c.Class)
-                    .Include(sub => sub.Subject)
-                    .Where(a => a.ClassId == userClassId.ClassId && a.SubjectId == subjectId && a.Date.Month == month && a.Date.Year == year)
-                    .ToList();
-                ViewBag.Count = academicPerformance.Count;
-                return View(academicPerformance);
-            }
+            ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false;
             return View();
+        }
+        [HttpPost]
+        [ActionName("Journal")]
+        [RoleAuthorization("True", "All")]
+        public IActionResult JournalPost(int? month, int? year, int? classId, int? subjectId)
+        {
+            if (Request.Form["confirm"] == "Подтвердить")
+            {
+                ViewBag.Month = Date.GetAllMonth();
+                ViewBag.SelectedMonth = month;
+                ViewBag.Year = Date.GetLast2Years();
+                ViewBag.SelectedYear = year;
+                ViewBag.ClassId = Class.GetAllClasses(db);
+                ViewBag.SelectedClassId = classId;
+                ViewBag.SubjectId = Subject.GetAllSubjects(db);
+                ViewBag.SelectedSubjectId = subjectId;
+
+                ViewBag.IsTeaher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
+                ViewBag.IsParent = HttpContext.Session.GetString("Role") == "Parent" ? true : false;
+
+                if (classId != null && subjectId != null)
+                {
+                    ViewBag.Students = db.Student.Where(s => s.ClassId == classId).OrderBy(s => s.Name).ToList();
+                    var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
+                        .Include(c => c.Class)
+                        .Include(sub => sub.Subject)
+                        .Where(a => a.ClassId == classId && a.SubjectId == subjectId && a.Date.Month == month && a.Date.Year == year)
+                        .ToList();
+                    ViewBag.Count = academicPerformance.Count;
+                    return View(academicPerformance);
+                }
+                else if (subjectId != null && HttpContext.Session.GetString("Role") == "Student")
+                {
+
+                    var userClassId = db.Student.Select(s => new { s.Id, s.ClassId }).Where(s => s.Id == Convert.ToInt32(HttpContext.Session.GetString("Id"))).FirstOrDefault();
+                    ViewBag.Students = db.Student.Where(s => s.ClassId == userClassId.ClassId).OrderBy(s => s.Name).ToList();
+                    var academicPerformance = db.AcademicPerfomance.Include(s => s.Student)
+                        .Include(c => c.Class)
+                        .Include(sub => sub.Subject)
+                        .Where(a => a.ClassId == userClassId.ClassId && a.SubjectId == subjectId && a.Date.Month == month && a.Date.Year == year)
+                        .ToList();
+                    ViewBag.Count = academicPerformance.Count;
+                    return View(academicPerformance);
+                }
+            }
+            
+            for (int i = 1; i <= DateTime.DaysInMonth(Convert.ToInt32(year), Convert.ToInt32(month)); i++)
+            {
+                if(string.IsNullOrEmpty(Request.Form[$"{i}"]) == false)
+                {
+                    var students = db.Student.Select(s => s.Id);
+                    string grades = Request.Form[$"{i}"].ToString();
+                    foreach (var garde in grades.Split("/"))
+                    {
+                        foreach (var item in students)
+                        {
+                            if (string.IsNullOrEmpty(Request.Form[$"-{item}"]) == false)
+                            {
+                                Console.WriteLine("!!" + item);
+                                var academicPerformance = new AcademicPerformance
+                                {
+                                    ClassId = (int)classId,
+                                    SubjectId = (int)subjectId,
+                                    StudentId = item,
+                                    Grade = Convert.ToInt32(garde),
+                                    TypeControlId = 1,
+                                    Date = new DateTime((int)year, (int)month, i)
+                                };
+                                db.Add(academicPerformance);
+                                db.SaveChanges();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return RedirectToAction("Journal");
         }
         [RoleAuthorization("True","All")]
         [Microsoft.AspNetCore.Mvc.Route("UpdateStudentGrade/{id}")]
@@ -158,9 +204,10 @@ namespace MyJour.Controllers
             {
                 foreach (var grade in studentGrades)
                 {
+                    int i = 0;
                     AcademicPerformance academic = new AcademicPerformance
                     {
-                        Id = Convert.ToInt32(gradeIds[1]),
+                        Id = Convert.ToInt32(gradeIds[i]),
                         StudentId = academicPerformance.StudentId,
                         ClassId = academicPerformance.ClassId,
                         SubjectId = academicPerformance.SubjectId,
@@ -170,6 +217,8 @@ namespace MyJour.Controllers
                     };
                     db.Entry(academic).State = EntityState.Modified;
                     db.SaveChanges();
+                    i++;
+                    Console.WriteLine(i);//надо трекинг убрать
                 }
                 return RedirectToAction("Journal");
             }

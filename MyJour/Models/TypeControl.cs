@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyJour.Models
 {
@@ -9,7 +10,7 @@ namespace MyJour.Models
         public ICollection<AcademicPerformance> AcademicPerformance { get; set;}
         static public List<SelectListItem> GetAllTypesControl(ApplicationDbContext db, int? selectedId = null)
         {
-            var list = db.TypeControl.Select(s => new { s.Id, s.Type });
+            var list = db.TypeControl.Select(s => new { s.Id, s.Type }).AsNoTracking();
             List<SelectListItem> classes = new List<SelectListItem>();
             foreach (var item in list)
             {

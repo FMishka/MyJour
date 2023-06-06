@@ -1,5 +1,5 @@
 ﻿@model ICollection<AcademicPerformance>
-@using (Html.BeginForm())
+@using (Html.BeginForm("Journal", "Home", FormMethod.Post))
 {
     <div class="container-fluid">
 
@@ -26,7 +26,7 @@
         </div>
         <div class="row">
             <div class="col-11">
-                <input style="margin-bottom: 5px" type="submit" value="Подтвердить" class="btn btn-success" />
+                <input style="margin-bottom: 5px" type="submit" name="confirm" id="submit" value="Подтвердить" class="btn btn-success" />
             </div>
         </div>
         <div class="row">
@@ -88,8 +88,10 @@
                             </tr>
                             @{
                                 var studentGetsGrades = ViewBag.Students;
+                                int count = 0;
                                 foreach (var students in studentGetsGrades)
                                 {
+                                    count++;
                                     <tr style="">
                                         <td width="200" style="border-bottom: 1px solid black; border-right: 1px solid black">@students.Name</td>
                                         @{
@@ -136,7 +138,7 @@
                                                 }
                                                 else{
                                                     <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black">
-                                                        @Html.TextBox("grade", "", new {@class="form-control form-group"})
+                                                        <input type="text" name="@i" class="form-control form-group" />
                                                     </td>
                                                 }
                                                 lastCheckedDay = i;
@@ -145,7 +147,7 @@
                                         @if (ViewBag.IsTeaher)
                                         {
                                             <td style="border-bottom: 1px solid black">
-                                                <a name="studendId" href="@Url.Action("RateStudent", "Home", new {studentId = @students.Id, classId = students.ClassId, subjectId = Convert.ToInt32(ViewBag.SelectedSubjectId) })" class="btn btn-success">Оценить</a>
+                                                <input style="margin-bottom: 5px" type="submit" name="-@students.Id" value="Оценить" class="btn btn-success" />
                                             </td>
                                         }
                                     </tr>
@@ -157,4 +159,6 @@
             </div>
         </div>
     </div>
+    <asp:Button ID="myButton" runat="server" Text="Нажми меня" OnClick="myButton_Click" />
+
 }
