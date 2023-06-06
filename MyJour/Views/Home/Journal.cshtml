@@ -133,10 +133,12 @@
                                             else
                                             {
                                                 var dt = new DateTime(Convert.ToInt32(ViewBag.SelectedYear), Convert.ToInt32(ViewBag.SelectedMonth), i);
-                                                if (dt.ToString("ddd") == "сб" || dt.ToString("ddd") == "вс" ){
+                                                if (dt.ToString("ddd") == "сб" || dt.ToString("ddd") == "вс" || ViewBag.IsTeaher == false)
+                                                {
                                                     <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black"></td>
                                                 }
-                                                else{
+                                                else if (ViewBag.IsTeaher)
+                                                {
                                                     <td width="100" style="border-bottom: 1px solid black; border-right: 1px solid black">
                                                         <input type="text" name="@i" class="form-control form-group" />
                                                     </td>

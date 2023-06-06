@@ -13,6 +13,10 @@
                 <h5>Выберите школьный предмет:</h5>
                 @Html.DropDownList("subjectId", ViewBag.SubjectId as SelectList, new {@class="form-select"})
             </div>
+            <div class="col" style="margin-bottom: 5px; width: 10%">
+                <h5>Выберите четверть:</h5>
+                @Html.DropDownList("quarter", new SelectList(new string[] {"1","2", "3","4"}), new {@class="form-select"})
+            </div>
         </div>
         <div class="row">
             <div class="col-11">

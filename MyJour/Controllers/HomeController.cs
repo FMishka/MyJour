@@ -389,7 +389,7 @@ namespace MyJour.Controllers
             return View();
         }
         [RoleAuthorization("True")]
-        public IActionResult StudentReport(int? classId, int? subjectId)
+        public IActionResult StudentReport(int? classId, int? subjectId, string quarter)
         {
             ViewBag.ClassId = Class.GetAllClasses(db);
             ViewBag.SubjectId = Subject.GetAllSubjects(db);
@@ -397,9 +397,31 @@ namespace MyJour.Controllers
             ViewBag.List = 0.0;
             if (classId != null && subjectId != null)
             {
+                DateTime beginQuarter = DateTime.Now;
+                DateTime endQuarter = DateTime.Now;
+                if (quarter == "1")
+                {
+                    beginQuarter = new DateTime(DateTime.Now.Year - 1, 9, 1);
+                    endQuarter = new DateTime(DateTime.Now.Year - 1, 10, 31);
+                }
+                else if (quarter == "2")
+                {
+                    beginQuarter = new DateTime(DateTime.Now.Year - 1, 11, 11);
+                    endQuarter = new DateTime(DateTime.Now.Year - 1, 12, 24);
+                }
+                else if (quarter == "3")
+                {
+                    beginQuarter = new DateTime(DateTime.Now.Year, 1, 11);
+                    endQuarter = new DateTime(DateTime.Now.Year, 3, 28);
+                }
+                else if (quarter == "4")
+                {
+                    beginQuarter = new DateTime(DateTime.Now.Year, 4, 6);
+                    endQuarter = new DateTime(DateTime.Now.Year, 5, 30);
+                }
                 var academic = db.AcademicPerfomance.Include(s => s.Student)
                     .Include(c => c.Class)
-                    .Include(sub => sub.Subject).Where(b => b.ClassId == classId && b.SubjectId == subjectId).ToList();
+                    .Include(sub => sub.Subject).Where(b => b.ClassId == classId && b.SubjectId == subjectId && b.Date >= beginQuarter && b.Date <= endQuarter).ToList();
                 return View(academic);
             }
 
