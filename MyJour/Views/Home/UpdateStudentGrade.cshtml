@@ -4,17 +4,12 @@
         <div>
             @if (ViewBag.IsTeacher)
             {
-                int grade1 = ViewBag.Grade1;
-                int? grade2 = ViewBag.Grade2;
+                string grades = ViewBag.Grades;
                 DateTime date = ViewBag.Date;
 
                 <div class="col" style="margin-bottom: 5px">
                     <h5>Напишите оценку:</h5>
-                    @Html.TextBox("grade1", grade1, new {@class="form-control form-group"})
-                </div>
-                <div class="col" style="margin-bottom: 5px">
-                    <h5>Напишите вторую оценку:</h5>
-                    @Html.TextBox("grade2", grade2, new {@class="form-control form-group"})
+                    @Html.TextBox("grades", grades, new {@class="form-control form-group"})
                 </div>
                 <div class="col" style="margin-bottom: 5px">
                     <h5>Выберите тип контроля:</h5>

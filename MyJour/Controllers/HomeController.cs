@@ -130,59 +130,47 @@ namespace MyJour.Controllers
         }
         [RoleAuthorization("True","All")]
         [Microsoft.AspNetCore.Mvc.Route("UpdateStudentGrade/{id}")]
-        public IActionResult UpdateStudentGrade(string id, string submit, string grade1, string grade2, int typeControlId, DateTime date)
+        public IActionResult UpdateStudentGrade(string id, string submit, string grades, int typeControlId, DateTime date)
         {
             ViewBag.IsTeacher = Convert.ToBoolean(HttpContext.Session.GetString("IsTeacher"));
             string[] gradeIds;
             gradeIds = id.Split(';');
-            var academicPerformance1 = db.AcademicPerfomance.AsNoTracking().Include(t => t.TypeControl).FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[0]));
-            ViewBag.Grade2 = null;
-            if (gradeIds.Count() == 2)
+            string[] studentGrades = new string[gradeIds.Length];
+            var academicPerformance = db.AcademicPerfomance.AsNoTracking().Include(t => t.TypeControl).FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[0]));
+            for(int i = 0; i < gradeIds.Length; i++)
             {
-                var academicPerformance2 = db.AcademicPerfomance.AsNoTracking().FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[1]));
-                ViewBag.Grade2 = academicPerformance2.Grade;
+                var grade = db.AcademicPerfomance.AsNoTracking().FirstOrDefault(s => s.Id == Convert.ToInt32(gradeIds[i]));
+                studentGrades[i] = grade.Grade.ToString();
             }
-            ViewBag.Grade1 = academicPerformance1.Grade;
+            ViewBag.Grades = string.Join("/", studentGrades);
             if (ViewBag.IsTeacher == false)
             {
-                ViewBag.Type = academicPerformance1.TypeControl.Type;
+                ViewBag.Type = academicPerformance.TypeControl.Type;
             }
             else
             {
-                ViewBag.TypeControlId = TypeControl.GetAllTypesControl(db, academicPerformance1.TypeControlId);
+                ViewBag.TypeControlId = TypeControl.GetAllTypesControl(db, academicPerformance.TypeControlId);
             }
             
-            ViewBag.Date = academicPerformance1.Date;
+            ViewBag.Date = academicPerformance.Date;
 
             if(submit == "Подтвердить")
             {
-                if (gradeIds.Count() == 2)
+                foreach (var grade in studentGrades)
                 {
-                    AcademicPerformance academic2 = new AcademicPerformance
+                    AcademicPerformance academic = new AcademicPerformance
                     {
                         Id = Convert.ToInt32(gradeIds[1]),
-                        StudentId = academicPerformance1.StudentId,
-                        ClassId = academicPerformance1.ClassId,
-                        SubjectId = academicPerformance1.SubjectId,
-                        Grade = Convert.ToInt32(grade2),
+                        StudentId = academicPerformance.StudentId,
+                        ClassId = academicPerformance.ClassId,
+                        SubjectId = academicPerformance.SubjectId,
+                        Grade = Convert.ToInt32(grade),
                         TypeControlId = typeControlId,
                         Date = date
                     };
-                    db.Entry(academic2).State = EntityState.Modified;
+                    db.Entry(academic).State = EntityState.Modified;
                     db.SaveChanges();
                 }
-                AcademicPerformance academic = new AcademicPerformance
-                {
-                    Id = Convert.ToInt32(gradeIds[0]),
-                    StudentId = academicPerformance1.StudentId,
-                    ClassId = academicPerformance1.ClassId,
-                    SubjectId = academicPerformance1.SubjectId,
-                    Grade = Convert.ToInt32(grade1),
-                    TypeControlId = typeControlId,
-                    Date = date
-                };
-                db.Entry(academic).State = EntityState.Modified;
-                db.SaveChanges();
                 return RedirectToAction("Journal");
             }
 
