@@ -28,21 +28,13 @@
             }
             else
             {
-                int grade1 = ViewBag.Grade1;
-                int? grade2 = ViewBag.Grade2;
+                string grades = ViewBag.Grades;
                 DateTime date = ViewBag.Date;
                 string typeControl = Convert.ToString(ViewBag.Type);
                 <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
-                    <h2>Оценка: @grade1</h2>
+                    <h2>Оценка: @grades</h2>
                 </div>
                 <br>
-                @if (grade2 != null)
-                {
-                    <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
-                        <h2>Вторая оценка: @grade2</h2>
-                    </div>
-                    <br>
-                }
                 <div style="background-color:lightgrey; border-radius: 10px; padding: 20px;">
                     <h2>Тип контроля: @typeControl</h2>
                 </div>

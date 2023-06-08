@@ -12,7 +12,6 @@ namespace MyJour.Models
         public DbSet<Role> Role { get; set; }
         public DbSet<AcademicPerformance> AcademicPerfomance { get; set; }
         public DbSet<Class> Class { get; set; }
-        public DbSet<ClassType> ClassType { get; set; }
         public DbSet<Subject> Subject { get; set; }
         public DbSet<TypeControl> TypeControl { get; set; }
         public DbSet<StudentsByParents> StudentsByParents { get; set; }
